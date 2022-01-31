@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: color-app
+spec:
+  selector:
+    matchLabels:
+      app: color
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: color
+    spec:
+      containers:
+        - name: color-container
+          image: alfreddobradi/color:v1.1.0
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          ports:
+            - containerPort: 8080

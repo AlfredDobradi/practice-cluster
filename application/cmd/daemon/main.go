@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	version         string   = "1.0.2"
+	version         string   = "1.1.0"
 	availableColors []string = []string{
 		"blue",
 		"green",
@@ -30,7 +31,8 @@ func main() {
 
 		output, err := content()
 		if err != nil {
-			http.Error(w, fmt.Sprintf(`{"error": "%s", "version": "v%s"}`, err.Error(), version), http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(fmt.Sprintf(`{"error": "%s", "version": "v%s"}`, err.Error(), version))) // nolint
 			return
 		}
 		w.Write(output) // nolint
@@ -46,8 +48,15 @@ func main() {
 }
 
 func content() ([]byte, error) {
+	index := rand.Intn(len(availableColors) + 1)
+
+	// Simulate unhappy path every once in a while
+	if index >= len(availableColors) {
+		return nil, fmt.Errorf("Index out of range: %d", index)
+	}
+
 	content := map[string]interface{}{
-		"color":   availableColors[0],
+		"color":   availableColors[index],
 		"version": "v" + version,
 	}
 
